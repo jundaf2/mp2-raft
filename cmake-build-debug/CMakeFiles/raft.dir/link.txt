@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/raft.dir/main.cpp.o -o raft  -lpthread 
