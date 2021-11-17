@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/raft.dir/main.cpp.o -o raft  -lpthread 
+/usr/bin/c++ -g -rdynamic CMakeFiles/raft.dir/main.cpp.o -o raft  -lpthread 

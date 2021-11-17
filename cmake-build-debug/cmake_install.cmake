@@ -43,8 +43,9 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
-  # Include the install script for the subdirectory.
+  # Include the install script for each subdirectory.
   include("/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/cmake-build-debug/common/cmake_install.cmake")
+
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)

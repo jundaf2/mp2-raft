@@ -2,115 +2,58 @@ import framework
 import asyncio
 import sys
 from collections import defaultdict
+import alog
+from logging import INFO, CRITICAL, DEBUG, ERROR
+import raft_test
+import raft_election_test
 
-LEADERS = {}
-NORMAL_OP = defaultdict(set)
-NORMAL_OP_EVENT = None
-NORMAL_OP_THRESHOLD = None
-NORMAL_OP_TERM = None
+async def partition_and_reelect(n, group, term, leader):
+    await alog.log(INFO, f"# Partitioning off leader {leader}, waiting for next one to be elected")
+    group.network.set_partition([leader], [str(p) for p in range(n) if str(p) != leader])
 
-class RaftProcess(framework.Process):
-    def update_state(self):
-        # some checks
-        if "term" not in self.state:
-            return 
-        term = self.state["term"]
-        if "leader" in self.state and self.state["leader"] is not None:
-            leader = self.state["leader"]
-            if term in LEADERS:
-                if leader != LEADERS[term]:
-                    print(f"### Error! Inconsistent leaders for term {term}")
-            else:
-                LEADERS[term] = leader
-            NORMAL_OP[term].add(self.pid)
-            if NORMAL_OP_THRESHOLD and term > NORMAL_OP_TERM and \
-                len(NORMAL_OP[term]) >= NORMAL_OP_THRESHOLD:
-                NORMAL_OP_EVENT.set()
+    def next_term(group):
+        term2, nodes = max(group.normal_op.items())
+        return term2 > term and len(nodes) == n-1
 
-async def monitor_exceptions(tasks):
-    try:
-        asyncio.gather(*tasks)
-    except Exception as e:
-        print(e)
+    await group.wait_predicate(next_term)
 
-async def main():
-    n = int(sys.argv[1])
-    network = framework.Network()
-    global NORMAL_OP_EVENT
-    global NORMAL_OP_THRESHOLD
-    global NORMAL_OP_TERM 
+    if len(group.leaders) > 2:
+        await alog.log(ERROR, "### Error!  more than 2 terms with a leader!")
+        raise RuntimeError("Error in second leader election")
 
-    NORMAL_OP_EVENT = asyncio.Event()
-    NORMAL_OP_THRESHOLD = n
-    NORMAL_OP_TERM = 0
+    term2, leader2 = max(group.leaders.items())
 
-    print("# Starting processes, waiting for election")
-    processes = await asyncio.gather(*[RaftProcess.create(str(pid), network, "./raft",
-        str(pid), str(n)) for pid in range(n)])
-    process_dict = { p.pid : p  for p in processes }
+    if leader2 == leader:
+        await alog.log(ERROR, "### Error! Partitioned leader elected!")
+        raise RuntimeError("Error in second leader election")
 
-    tasks = [ p.reader_task for p in processes ] + \
-        [ p.writer_task for p in processes ]
-    asyncio.create_task(monitor_exceptions(tasks))
-    
-    try:
-        await asyncio.wait_for(asyncio.create_task(NORMAL_OP_EVENT.wait()),
-            timeout=30)
+    await alog.log(INFO, f"# Successfully elected {leader2} for term {term2}")
+    return term2, leader2
 
-        if len(LEADERS) > 1:
-            print("### Error!  more than 1 term with a leader despite no failures!")
-            return
 
-        term, leader = LEADERS.popitem()
-        print(f"# Successfully elected {leader} for term {term}")
-        NORMAL_OP_TERM = term 
-        NORMAL_OP_THRESHOLD = n-1
-        NORMAL_OP_EVENT = asyncio.Event()
+async def main(n, group):
+    term, leader = await raft_election_test.elect_leader(n, group)
 
-        print(f"# Partitioning off leader {leader}, waiting for next one to be elected")
-        network.set_partition([leader], [str(p) for p in range(n) if str(p) != leader])
+    await partition_and_reelect(n, group, term, leader)
 
-        # allow 30 seconds for election
-        await asyncio.wait_for(asyncio.create_task(NORMAL_OP_EVENT.wait()),
-            timeout=30)
+    await alog.log(INFO, f"# Repairing partition, waiting for old leader ({leader}) to catch up")
 
-        if len(LEADERS) > 2:
-            print("### Error!  more than 2 terms with a leader!")
-            return
+    group.network.repair_partition()
 
-        term2, leader2 = max(LEADERS.items())
+    def full_group(group):
+        _, nodes = max(group.normal_op.items())
+        return len(nodes) == n
 
-        print(f"# Successfully elected {leader2} for term {term2}")
-        print(f"# Repairing partition, waiting for leader to catch up")
+    await group.wait_predicate(full_group)
 
-        NORMAL_OP_THRESHOLD = n
-        NORMAL_OP_EVENT = asyncio.Event()
+    if len(group.leaders) > 2:
+        await alog.log(ERROR, "### Error! Repairing partition should not result in a new term")
+        return 
 
-        network.repair_partition()
-        # allow 30 seconds for election
-        await asyncio.wait_for(asyncio.create_task(NORMAL_OP_EVENT.wait()), timeout=30)
-
-        if len(LEADERS) > 2:
-            print("### Error! Repairing partition should not result in a new term")
-            return 
-
-        print("### Partition test passed!")
-
-        for p in processes:
-            if p.pid != leader:
-                p.stop()
-
-        print(f"# Sent {network.message_count} messages, {network.byte_count} bytes")
-
-    except asyncio.TimeoutError:
-        print("## Error! Election did not terminate in 30 seconds!")
-    return
+    await alog.log(INFO, "### Partition test passed!")
 
 if __name__ == "__main__":
-#    framework.DEBUG = True
-    asyncio.get_event_loop().run_until_complete(main())
-
-
+    asyncio.run(raft_test.run_test(main))
     
     
         

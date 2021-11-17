@@ -21,29 +21,39 @@ void DEBUG_INFO(string info){
 }
 
 // interaction with the frame work, a base for message sending/receiving
-namespace framework{
+namespace framework {
     const int TIME_BOUND = 1000; // ms
 
-    void send(int to_node_id, json& j){
+    void send(int to_node_id, json &j) {
         // json to string
         string message = j.dump();
-        fmt::print("SEND {} {}\n", to_node_id, message); cout << flush;
+        fmt::print("SEND {} {}\n", to_node_id, message);
+        cout << flush;
     }
 
-    void state(json j){
-        for (auto it = j.begin(); it != j.end(); ++it)
-        {
-            if(it.key()=="leader"){
-//                auto val_str = std::to_string(it.value().get<int>());
-//                auto val_uvec = std::vector<unsigned char>(val_str.data(), val_str.data() + val_str.length() + 1);
-//                unsigned char* val_uchar = &val_uvec[0]; //base64_encode(val_uchar,val_str.size())
-                fmt::print("STATE {}=\"{}\"\n", it.key(), it.value()); cout << flush;
-            }
-            else{
-                fmt::print("STATE {}={}\n", it.key(), it.value()); cout << flush;
+    void state(json j) {
+        for (auto it = j.begin(); it != j.end();) {
+            if (it.key() == "term") {
+                fmt::print("STATE {}={}\n", it.key(), it.value());
+                cout << flush;
+                it = j.erase(it);
+            } else {
+                ++it;
             }
         }
+
+        for (auto it = j.begin(); it != j.end(); ++it) {
+            if (it.key() == "leader") {
+                fmt::print("STATE {}=\"{}\"\n", it.key(), it.value());
+                cout << flush;
+            } else {
+                fmt::print("STATE {}={}\n", it.key(), it.value());
+                cout << flush;
+            }
+        }
+
     }
+
 
     void commit(int index, string& s){
         fmt::print("COMMITTED {} {}\n", s, index); cout << flush;
@@ -180,14 +190,14 @@ namespace raft{
                 if (chrono::duration_cast<chrono::milliseconds>(now.time_since_epoch() - this->timeout_start.time_since_epoch()).count() >= framework::TIME_BOUND) {
                     for(auto node: this->nodes_info){
                         this->send_append_entry(node.node_id);
-                        //DEBUG_INFO("heartbeat");
+                        DEBUG_INFO("## heartbeat to "+ to_string(node.node_id));
                     }
                     this->reset_start_time();
                 }
             }
 
             void become_leader(){
-                //DEBUG_INFO("become leader");
+                DEBUG_INFO("## become leader");
                 this->leader = this_node_id;
                 this->state = LEADER;
                 this->voted = true;
@@ -313,7 +323,6 @@ namespace raft{
                 str_list.push_back(recv_str.substr(0, recv_str.length()));
 
                  json j = json::parse(str_list[1]);
-                 json j_new;
                  if(j["msg_type"]==REQUESTVOTE){
                      //sleep(0.001);
                      //DEBUG_INFO("Receive REQUESTVOTE");
@@ -338,6 +347,9 @@ namespace raft{
                          Log_Entry log_entry;
                          if (this->is_leader() || this->is_candidate())
                              become_follower();
+                         if (this->log_t.size()>0){
+                         }
+
                          if(j["prevLogIndex"]!=0){ // starting from 1
                              log_entry = this->log_t.at(j["prevLogIndex"].get<int>()-1);
                              if(log_entry.term!=j["prevLogTerm"].get<int>()){
@@ -374,7 +386,7 @@ namespace raft{
                      if(j["success"]){
                          this->nodes_info[j["followerId"]].next_idx = j["matchIndex"];
 
-                         for(int i=commitIndex+1;i<j["matchIndex"];i++){
+                         for(int i = this->commitIndex+1;i<j["matchIndex"];i++){
                              this->log_t[i].node_num++;
                          }
 
@@ -387,8 +399,15 @@ namespace raft{
                          }
                      }
                      else{
-                         this->nodes_info[j["followerId"]].next_idx--;
-                         this->send_append_entry(j["followerId"]);
+                         if(this->nodes_info[j["followerId"]].next_idx>0){
+                             this->nodes_info[j["followerId"]].next_idx--;
+                             this->send_append_entry(j["followerId"]);
+                             DEBUG_INFO("Resend append_entry");
+                         }
+                         else{
+                             DEBUG_INFO("next_idx error");
+                         }
+
                      }
                  }
              }

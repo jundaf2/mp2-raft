@@ -18,8 +18,6 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/home/ubuntu/Desktop/clion-2021.2.1/bin/cmake/linux/share/cmake-3.20/Modules/CMakeSystemSpecificInformation.cmake"
   "/home/ubuntu/Desktop/clion-2021.2.1/bin/cmake/linux/share/cmake-3.20/Modules/CMakeSystemSpecificInitialize.cmake"
   "/home/ubuntu/Desktop/clion-2021.2.1/bin/cmake/linux/share/cmake-3.20/Modules/CheckCSourceCompiles.cmake"
-  "/home/ubuntu/Desktop/clion-2021.2.1/bin/cmake/linux/share/cmake-3.20/Modules/CheckFunctionExists.c"
-  "/home/ubuntu/Desktop/clion-2021.2.1/bin/cmake/linux/share/cmake-3.20/Modules/CheckIncludeFile.c.in"
   "/home/ubuntu/Desktop/clion-2021.2.1/bin/cmake/linux/share/cmake-3.20/Modules/CheckIncludeFile.cmake"
   "/home/ubuntu/Desktop/clion-2021.2.1/bin/cmake/linux/share/cmake-3.20/Modules/CheckLibraryExists.cmake"
   "/home/ubuntu/Desktop/clion-2021.2.1/bin/cmake/linux/share/cmake-3.20/Modules/Compiler/CMakeCommonCompilerMacros.cmake"
