@@ -1,4 +1,4 @@
-#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
 
 #IncludeRegexScan: ^.*$
 
@@ -6,9 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/common/base64.hpp
+/home/jundaf2/mp2-raft/common/base64.hpp
 
-/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/common/fmt.hpp
+/home/jundaf2/mp2-raft/common/fmt.hpp
 cassert
 -
 clocale
@@ -66,7 +66,7 @@ algorithm
 limits
 -
 
-/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/common/json.hpp
+/home/jundaf2/mp2-raft/common/json.hpp
 algorithm
 -
 cstddef
@@ -426,7 +426,7 @@ vector
 string_view
 -
 
-/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/main.cpp
+/home/jundaf2/mp2-raft/main.cpp
 iostream
 -
 string
@@ -448,9 +448,9 @@ cstdlib
 unistd.h
 -
 common/json.hpp
-/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/common/json.hpp
+/home/jundaf2/mp2-raft/common/json.hpp
 common/fmt.hpp
-/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/common/fmt.hpp
+/home/jundaf2/mp2-raft/common/fmt.hpp
 common/base64.hpp
-/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/common/base64.hpp
+/home/jundaf2/mp2-raft/common/base64.hpp
 

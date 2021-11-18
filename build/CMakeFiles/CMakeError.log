@@ -1,24 +1,23 @@
 Determining if the pthread_create exist failed with the following output:
-Change Dir: /mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/build/CMakeFiles/CMakeTmp
+Change Dir: /home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_a470c/fast"
-/usr/bin/make -f CMakeFiles/cmTC_a470c.dir/build.make CMakeFiles/cmTC_a470c.dir/build
-make[1]: Entering directory '/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_a470c.dir/CheckSymbolExists.c.o
-/usr/bin/cc    -o CMakeFiles/cmTC_a470c.dir/CheckSymbolExists.c.o   -c /mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
-Linking C executable cmTC_a470c
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a470c.dir/link.txt --verbose=1
-/usr/bin/cc      -rdynamic CMakeFiles/cmTC_a470c.dir/CheckSymbolExists.c.o  -o cmTC_a470c 
-CMakeFiles/cmTC_a470c.dir/CheckSymbolExists.c.o: In function `main':
-CheckSymbolExists.c:(.text+0x1b): undefined reference to `pthread_create'
+Run Build Command:/usr/bin/gmake "cmTryCompileExec3987748848/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec3987748848.dir/build.make CMakeFiles/cmTryCompileExec3987748848.dir/build
+gmake[1]: Entering directory `/home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3987748848.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTryCompileExec3987748848.dir/CheckSymbolExists.c.o   -c /home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTryCompileExec3987748848
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3987748848.dir/link.txt --verbose=1
+/usr/bin/cc       CMakeFiles/cmTryCompileExec3987748848.dir/CheckSymbolExists.c.o  -o cmTryCompileExec3987748848 -rdynamic 
+CMakeFiles/cmTryCompileExec3987748848.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_a470c.dir/build.make:97: recipe for target 'cmTC_a470c' failed
-make[1]: *** [cmTC_a470c] Error 1
-make[1]: Leaving directory '/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/build/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_a470c/fast' failed
-make: *** [cmTC_a470c/fast] Error 2
+gmake[1]: Leaving directory `/home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTryCompileExec3987748848] Error 1
+gmake: *** [cmTryCompileExec3987748848/fast] Error 2
 
-File /mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+File /home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
 /* */
 #include <pthread.h>
 
@@ -34,22 +33,21 @@ int main(int argc, char** argv)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/build/CMakeFiles/CMakeTmp
+Change Dir: /home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp
 
-Run Build Command:"/usr/bin/make" "cmTC_95be7/fast"
-/usr/bin/make -f CMakeFiles/cmTC_95be7.dir/build.make CMakeFiles/cmTC_95be7.dir/build
-make[1]: Entering directory '/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_95be7.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_95be7.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.10/Modules/CheckFunctionExists.c
-Linking C executable cmTC_95be7
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_95be7.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_95be7.dir/CheckFunctionExists.c.o  -o cmTC_95be7 -lpthreads 
+Run Build Command:/usr/bin/gmake "cmTryCompileExec3786062624/fast"
+/usr/bin/gmake -f CMakeFiles/cmTryCompileExec3786062624.dir/build.make CMakeFiles/cmTryCompileExec3786062624.dir/build
+gmake[1]: Entering directory `/home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp'
+/usr/bin/cmake -E cmake_progress_report /home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp/CMakeFiles 1
+Building C object CMakeFiles/cmTryCompileExec3786062624.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTryCompileExec3786062624.dir/CheckFunctionExists.c.o   -c /usr/share/cmake/Modules/CheckFunctionExists.c
+Linking C executable cmTryCompileExec3786062624
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTryCompileExec3786062624.dir/link.txt --verbose=1
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create    CMakeFiles/cmTryCompileExec3786062624.dir/CheckFunctionExists.c.o  -o cmTryCompileExec3786062624 -rdynamic -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_95be7.dir/build.make:97: recipe for target 'cmTC_95be7' failed
-make[1]: *** [cmTC_95be7] Error 1
-make[1]: Leaving directory '/mnt/hgfs/VMware_share_file/CS425_DS_CPP/mp2-raft/build/CMakeFiles/CMakeTmp'
-Makefile:126: recipe for target 'cmTC_95be7/fast' failed
-make: *** [cmTC_95be7/fast] Error 2
+gmake[1]: Leaving directory `/home/jundaf2/mp2-raft/build/CMakeFiles/CMakeTmp'
+gmake[1]: *** [cmTryCompileExec3786062624] Error 1
+gmake: *** [cmTryCompileExec3786062624/fast] Error 2
 
 
