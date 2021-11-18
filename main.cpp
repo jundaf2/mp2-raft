@@ -69,10 +69,10 @@ namespace raft{
     const string FOLLOWER = "FOLLOWER";
 
     // RPC type
-    const string APPENDENTIES = "AppendEntries";
+    const string APPENDENTRIES = "AppendEntries";
     const string REQUESTVOTE = "RequestVotes";
 
-    const string APPENDENTIES_RPL = "AppendEntriesResponse";
+    const string APPENDENTRIES_RPL = "AppendEntriesResponse";
     const string REQUESTVOTE_RPL = "RequestVotesResponse";
 
 
@@ -89,7 +89,9 @@ namespace raft{
 
             Log_Entry(string json_str){
                 json j = json::parse(json_str);
-                index = stoi(j.begin().key().substr(j.begin().key().find_first_of('['),(j.begin().key().find_last_of(']')-j.begin().key().find_first_of('[')-1)));
+//                DEBUG_INFO("pos:"+to_string(j.begin().key().find_first_of('[')));
+//                DEBUG_INFO("len:"+ to_string((j.begin().key().find_last_of(']')-j.begin().key().find_first_of('[')-1)));
+                index = stoi(j.begin().key().substr(j.begin().key().find_first_of('[')+1,(j.begin().key().find_last_of(']')-j.begin().key().find_first_of('[')-1)));
                 term = j.begin().value()[0];
                 command = j.begin().value()[1];
             }
@@ -112,7 +114,7 @@ namespace raft{
         int node_id = 0;
         bool alive = true;
         bool voted_for_me = false;
-        unsigned long int next_idx = 0;
+        int next_idx = 0;
     };
 
     class Raft{
@@ -125,12 +127,12 @@ namespace raft{
             chrono::time_point<chrono::high_resolution_clock> timeout_start{ chrono::high_resolution_clock::now() };
 
             // (Log entries are numbered starting at 1.)
-            unsigned long int term = 1;// The current term according to the node
+            int term = 1;// The current term according to the node
             string state = FOLLOWER; // One of LEADER, FOLLOWER, or CANDIDATE (please use all caps)
             int leader = -1; // The identity of the the leader of the current term, if known
             vector<Log_Entry> log_t;
-            unsigned long int commitIndex = 0; // The index of the last committed entry.
-            unsigned long int matchIndex = 0;
+            int commitIndex = 0; // The index of the last committed entry.
+            int matchIndex = 0;
 
             json latest_state = {{"term",this->term},
                                  {"state",this->state},
@@ -170,12 +172,31 @@ namespace raft{
                 this->reset_time_out(framework::TIME_BOUND + rand()%framework::TIME_BOUND);
             }
 
-            void append_log(string log_str){
+            void init_log(string log_str){
                 Log_Entry log_entry;
-                log_entry.index = log_t.size()+1;
-                log_entry.term = term;
+                log_entry.index = this->log_t.size()+1;
+                log_entry.term = this->term;
                 log_entry.command = log_str;
-                log_t.push_back(log_entry);
+                this->append_log(log_entry);
+                for(auto node: this->nodes_info){
+                    this->send_append_entry(node.node_id);
+                }
+            }
+
+            void append_log(Log_Entry log_entry){
+                DEBUG_INFO("append_log");
+                this->log_t.push_back(log_entry);
+                this->matchIndex++;
+//                framework::state(this->log_t.back().to_json());
+            }
+
+            /**
+            * Commit entry to "State Machine" (STDIN)
+            */
+            void commit_entry(){
+                Log_Entry log_entry = this->log_t[this->commitIndex];
+                this->commitIndex++; // committed index
+                framework::commit(log_entry.index,log_entry.command);
             }
 
             //is timeout
@@ -202,7 +223,7 @@ namespace raft{
                 this->state = LEADER;
                 this->voted = true;
                 for(auto& node: this->nodes_info){
-                    node.next_idx = this->log_t.size() + 1;
+                    node.next_idx = this->log_t.size() + 1; // Initialize nextIndex for each to last log index + 1
                     this->send_append_entry(node.node_id);
                 }
             }
@@ -280,22 +301,31 @@ namespace raft{
 
             void send_append_entry(int nid){
                 vector<string> entries_to_append;
-                for(auto log:this->log_t){
-                    entries_to_append.push_back(log.to_str());
+                /*
+                 * Whenever last log index ≥ nextIndex for a follower, send
+                 * AppendEntries RPC with log entries starting at nextIndex,
+                 * update nextIndex if successful
+                 */
+                DEBUG_INFO("send_append_entry: "+to_string(this->log_t.size())+" "+ to_string((int) this->nodes_info[nid].next_idx));
+                if(this->log_t.size()>=this->nodes_info[nid].next_idx && this->nodes_info[nid].next_idx>0) {
+                    for(int i=this->nodes_info[nid].next_idx-1;i<this->log_t.size();i++){
+                        entries_to_append.push_back(this->log_t[i].to_str());
+                    }
                 }
-                json j = json{{"msg_type", APPENDENTIES},
+
+                json j = json{{"msg_type", APPENDENTRIES},
                               {"leaderId",this->this_node_id}, // candidate requesting vote
                               {"term",this->term}, // leader's term
                               {"prevLogIndex", (this->log_t.empty() ? 0 : log_t.back().index)}, // index of log entry immediately preceding new ones
                               {"prevLogTerm", (this->log_t.empty() ? 0 : log_t.back().term)}, // term of prevLogIndex entry
-                              {"entries",entries_to_append}, // log entries to store (empty for heartbeat) --> json of vector of json string
+                              {"entries", entries_to_append}, // log entries to store (empty for heartbeat) --> json of vector of json string
                               {"commitIndex", this->commitIndex} // last entry known to be committed
                 };
                 framework::send(nid,j);
             }
 
             void reply_append_entry(int nid, bool success){
-                json j = json{{"msg_type", APPENDENTIES_RPL},
+                json j = json{{"msg_type", APPENDENTRIES_RPL},
                              {"followerId",this->this_node_id},
                              {"term",this->term}, // currentTerm, for leader to update itself
                              {"success", success}, // true if follower contained entry matching prevLogIndex and prevLogTerm
@@ -338,7 +368,7 @@ namespace raft{
                         this->become_leader();
                     }
                  }
-                 else if(j["msg_type"]==APPENDENTIES){
+                 else if(j["msg_type"]==APPENDENTRIES){
                      if(this->term>j["term"]){
                         this->reply_append_entry(j["leaderId"], false);
                      }
@@ -347,51 +377,65 @@ namespace raft{
                          Log_Entry log_entry;
                          if (this->is_leader() || this->is_candidate())
                              become_follower();
-                         if (this->log_t.size()>0){
-                         }
-
-                         if(j["prevLogIndex"]!=0){ // starting from 1
-                             log_entry = this->log_t.at(j["prevLogIndex"].get<int>()-1);
-                             if(log_entry.term!=j["prevLogTerm"].get<int>()){
-                                 this->reply_append_entry(j["leaderId"], false);
-                                 return;
-                             }
-                             log_entry = log_t.at(j["prevLogIndex"].get<int>());
-                             this->log_t.erase(this->log_t.begin() + j["prevLogIndex"].get<int>() - 1, this->log_t.end());
-                         }
-
-                         while(this->commitIndex<j["commitIndex"]){
-                             log_entry = this->log_t.back();
-                             this->commitIndex = (log_entry.index<j["commitIndex"].get<int>() ? log_entry.index:j["commitIndex"].get<int>());
-                             this->matchIndex = (log_entry.index<j["commitIndex"].get<int>() ? log_entry.index:j["commitIndex"].get<int>());
-
-                             this->commit_entry();
-                         }
-
                          this->term = j["term"];
                          this->leader = j["leaderId"];
 
                          // append all entries to log
                          for(string entry_j_str : j["entries"]){
                              log_entry = Log_Entry(entry_j_str);
-                             log_entry.term = this->term;
-                             this->log_t.push_back(log_entry);
+                             if(log_entry.index>(j["prevLogIndex"].get<int>()-1)){
+                                 DEBUG_INFO(entry_j_str);
+                                 this->append_log(log_entry);
+                                 DEBUG_INFO("log_entry.index: "+ to_string(log_entry.index)+" j[\"prevLogIndex\"].get<int>()"+
+                                                                                            to_string(j["prevLogIndex"].get<int>()));
+                             }
+                         }
+
+                         if (this->log_t.size()>0){
+                             if(j["prevLogIndex"].get<int>()!=0){ // starting from 1
+                                 DEBUG_INFO("Check prevLogIndex: "+ to_string(this->log_t.size()));
+                                 //if(j["prevLogIndex"].get<int>()<=this->log_t.size())
+                                 try {
+                                     log_entry = this->log_t.at(j["prevLogIndex"].get<int>() - 1);
+                                 }catch (std::runtime_error& err){
+                                     DEBUG_INFO("j[\"prevLogIndex\"].get<int>()>this->log_t.size()");
+                                 }
+
+                                 DEBUG_INFO("Check prevLogTerm: "+ to_string(log_entry.term) + " " + to_string(j["prevLogTerm"].get<int>()));
+                                 if(log_entry.term!=j["prevLogTerm"].get<int>()){
+                                     this->reply_append_entry(j["leaderId"], false);
+                                     if(j["prevLogIndex"].get<int>()<this->log_t.size())
+                                         this->log_t.erase(this->log_t.begin() + j["prevLogIndex"].get<int>(), this->log_t.end());
+                                     return;
+                                 }
+                             }
+                         }
+
+                         while(this->commitIndex<j["commitIndex"].get<int>()){
+                             log_entry = this->log_t.back();
+                             DEBUG_INFO("this->commitIndex: "+to_string(log_entry.index)+" "+ to_string(j["commitIndex"].get<int>()));
+                             this->commitIndex = (log_entry.index<j["commitIndex"].get<int>() ? log_entry.index:j["commitIndex"].get<int>()) - 1;
+                             // this->matchIndex = (log_entry.index<j["commitIndex"].get<int>() ? log_entry.index:j["commitIndex"].get<int>());
+                             this->commit_entry();
+                             DEBUG_INFO("Finish commit_entry");
                          }
 
                          this->reply_append_entry(j["leaderId"], true);
                          this->reset_start_time();
                      }
                  }
-                 else if(j["msg_type"]==APPENDENTIES_RPL){
+                 else if(j["msg_type"]==APPENDENTRIES_RPL){
                      if(j["success"]){
-                         this->nodes_info[j["followerId"]].next_idx = j["matchIndex"];
+                         DEBUG_INFO("follower match index "+ to_string(j["matchIndex"].get<int>()));
+                         this->nodes_info[j["followerId"]].next_idx = j["matchIndex"].get<int>() + 1;
 
-                         for(int i = this->commitIndex+1;i<j["matchIndex"];i++){
+                         for(int i = this->commitIndex;i<j["matchIndex"];i++){
                              this->log_t[i].node_num++;
                          }
 
                          while(this->commitIndex<j["matchIndex"]){
-                             if(this->log_t[this->commitIndex+1].node_num>=(this->nodes_info.size()/2+1)) { // majority
+                             DEBUG_INFO("this->commitIndex: "+ to_string(this->commitIndex)+" "+ to_string(j["matchIndex"]));
+                             if(this->log_t[this->commitIndex].node_num>=(this->nodes_info.size()/2+1)) { // majority
                                  this->commit_entry();
                              }
                              else
@@ -422,9 +466,7 @@ namespace raft{
                               {"leader",this->leader},
                               {"commitIndex",this->commitIndex},};
                 for(auto log_entry: this->log_t){
-                    if(log_entry.index<=this->commitIndex){
-                        this->latest_state.update(log_entry.to_json());
-                    }
+                    this->latest_state.update(log_entry.to_json());
                 }
                 json j_diff = json::diff(this->history_state,this->latest_state);
                 json j_add = {};
@@ -439,15 +481,6 @@ namespace raft{
 
                 this->history_state = this->latest_state;
                 framework::state(j_add);
-            }
-
-            /**
-            * Commit entry to "State Machine" (STDIN)
-            */
-            void commit_entry(){
-                Log_Entry log_entry = this->log_t[this->commitIndex];
-                this->commitIndex++; // committed index
-                framework::commit(log_entry.index,log_entry.command);
             }
 
     };
@@ -518,7 +551,7 @@ int main(int argc, char const *argv[]) {
                 raft.parse_recv_message(recv_queue_front.second);
             }
             else if(recv_queue_front.first=="LOG"){
-                raft.append_log(recv_queue_front.second);
+                raft.init_log(recv_queue_front.second);
                 //DEBUG_INFO("LOG!");
             }
             else{
