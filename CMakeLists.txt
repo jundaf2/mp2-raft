@@ -1,7 +1,16 @@
-cmake_minimum_required(VERSION 2.28)
+cmake_minimum_required(VERSION 2.8)
 project(mp2_raft)
+macro(use_cxx11)
+    if (CMAKE_VERSION VERSION_LESS "3.1")
+        if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+            set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++1y")
+        endif ()
+    else ()
+        set (CMAKE_CXX_STANDARD 14)
+    endif ()
+endmacro(use_cxx11)
 
-set(CMAKE_CXX_STANDARD 14)
+use_cxx11()
 
 # CMakeLists.txt
 add_subdirectory(common)

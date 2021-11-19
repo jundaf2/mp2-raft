@@ -362,9 +362,14 @@ namespace raft{
                  }
                  else if(j["msg_type"]==REQUESTVOTE_RPL){
                     if(j["granted"]){
-                        this->nodes_info[j["voterId"]].voted_for_me = true;
+                        for(auto& node_info:this->nodes_info){
+                            if(node_info.node_id==j["voterId"]){
+                                node_info.voted_for_me = true;
+                            }
+                        }
                     }
                     if(this->count_votes()>=(this->nodes_info.size()/2+1) && !this->is_leader()){ // majority
+                        DEBUG_INFO("this->count_votes(): "+ to_string(this->count_votes()));
                         this->become_leader();
                     }
                  }
