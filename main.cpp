@@ -369,7 +369,7 @@ namespace raft{
                         }
                     }
                     if(this->count_votes()>=(this->nodes_info.size()/2+1) && !this->is_leader()){ // majority
-                        DEBUG_INFO("this->count_votes(): "+ to_string(this->count_votes()));
+//                        DEBUG_INFO("this->count_votes(): "+ to_string(this->count_votes()));
                         this->become_leader();
                     }
                  }
