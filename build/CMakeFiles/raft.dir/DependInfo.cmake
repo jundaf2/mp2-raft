@@ -4,7 +4,7 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
-  "/home/jundaf2/mp2-raft/main.cpp" "/home/jundaf2/mp2-raft/build/CMakeFiles/raft.dir/main.o"
+  "/home/jundaf2/mp2-raft/main.cpp" "/home/jundaf2/mp2-raft/build/CMakeFiles/raft.dir/main.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 

@@ -52,37 +52,37 @@ include CMakeFiles/raft.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/raft.dir/flags.make
 
-CMakeFiles/raft.dir/main.o: CMakeFiles/raft.dir/flags.make
-CMakeFiles/raft.dir/main.o: ../main.cpp
+CMakeFiles/raft.dir/main.cpp.o: CMakeFiles/raft.dir/flags.make
+CMakeFiles/raft.dir/main.cpp.o: ../main.cpp
 	$(CMAKE_COMMAND) -E cmake_progress_report /home/jundaf2/mp2-raft/build/CMakeFiles $(CMAKE_PROGRESS_1)
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/raft.dir/main.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/raft.dir/main.o -c /home/jundaf2/mp2-raft/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/raft.dir/main.cpp.o"
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/raft.dir/main.cpp.o -c /home/jundaf2/mp2-raft/main.cpp
 
-CMakeFiles/raft.dir/main.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/raft.dir/main.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/jundaf2/mp2-raft/main.cpp > CMakeFiles/raft.dir/main.i
+CMakeFiles/raft.dir/main.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/raft.dir/main.cpp.i"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/jundaf2/mp2-raft/main.cpp > CMakeFiles/raft.dir/main.cpp.i
 
-CMakeFiles/raft.dir/main.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/raft.dir/main.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/jundaf2/mp2-raft/main.cpp -o CMakeFiles/raft.dir/main.s
+CMakeFiles/raft.dir/main.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/raft.dir/main.cpp.s"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/jundaf2/mp2-raft/main.cpp -o CMakeFiles/raft.dir/main.cpp.s
 
-CMakeFiles/raft.dir/main.o.requires:
-.PHONY : CMakeFiles/raft.dir/main.o.requires
+CMakeFiles/raft.dir/main.cpp.o.requires:
+.PHONY : CMakeFiles/raft.dir/main.cpp.o.requires
 
-CMakeFiles/raft.dir/main.o.provides: CMakeFiles/raft.dir/main.o.requires
-	$(MAKE) -f CMakeFiles/raft.dir/build.make CMakeFiles/raft.dir/main.o.provides.build
-.PHONY : CMakeFiles/raft.dir/main.o.provides
+CMakeFiles/raft.dir/main.cpp.o.provides: CMakeFiles/raft.dir/main.cpp.o.requires
+	$(MAKE) -f CMakeFiles/raft.dir/build.make CMakeFiles/raft.dir/main.cpp.o.provides.build
+.PHONY : CMakeFiles/raft.dir/main.cpp.o.provides
 
-CMakeFiles/raft.dir/main.o.provides.build: CMakeFiles/raft.dir/main.o
+CMakeFiles/raft.dir/main.cpp.o.provides.build: CMakeFiles/raft.dir/main.cpp.o
 
 # Object files for target raft
 raft_OBJECTS = \
-"CMakeFiles/raft.dir/main.o"
+"CMakeFiles/raft.dir/main.cpp.o"
 
 # External object files for target raft
 raft_EXTERNAL_OBJECTS =
 
-raft: CMakeFiles/raft.dir/main.o
+raft: CMakeFiles/raft.dir/main.cpp.o
 raft: CMakeFiles/raft.dir/build.make
 raft: CMakeFiles/raft.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --red --bold "Linking CXX executable raft"
@@ -92,7 +92,7 @@ raft: CMakeFiles/raft.dir/link.txt
 CMakeFiles/raft.dir/build: raft
 .PHONY : CMakeFiles/raft.dir/build
 
-CMakeFiles/raft.dir/requires: CMakeFiles/raft.dir/main.o.requires
+CMakeFiles/raft.dir/requires: CMakeFiles/raft.dir/main.cpp.o.requires
 .PHONY : CMakeFiles/raft.dir/requires
 
 CMakeFiles/raft.dir/clean:

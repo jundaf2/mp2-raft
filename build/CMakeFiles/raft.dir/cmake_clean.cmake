@@ -1,5 +1,5 @@
 FILE(REMOVE_RECURSE
-  "CMakeFiles/raft.dir/main.o"
+  "CMakeFiles/raft.dir/main.cpp.o"
   "raft.pdb"
   "raft"
 )
